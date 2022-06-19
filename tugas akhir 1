@@ -1,0 +1,238 @@
+import tensorflow as tf
+print(tf.__version__)
+
+
+import os                                                                        
+import zipfile                                                                    
+
+local_zip = '/content/drive/MyDrive/Colab Notebooks/rockpaperscissors.zip'                                      
+zip_ref = zipfile.ZipFile(local_zip, 'r')                                         
+zip_ref.extractall('/content/')                                                   
+zip_ref.close()                 
+
+import tensorflow as tf                                                          
+import keras_preprocessing                                                        
+from keras_preprocessing import image                                              
+from keras_preprocessing.image import ImageDataGenerator  
+                      
+
+base_dir = '/content/rockpaperscissors/rps-cv-images'
+training_datagen = ImageDataGenerator(                                           
+      rescale = 1./255,                                                          
+        rotation_range=20,                                                                   
+      width_shift_range=0.2,                                                      
+      height_shift_range=0.2,                                                    
+      shear_range=0.2,                                                             
+      zoom_range=0.2,                                                             
+      horizontal_flip=True,                                                      
+      fill_mode='wrap',                                                        
+      
+      validation_split=0.4                                                        
+      )
+
+
+
+train_generator = training_datagen.flow_from_directory(                          
+	base_dir,                                                                      
+	target_size=(100,150),                                                         
+	class_mode='categorical',                                                     
+  shuffle=True,                                                                   
+  subset='training'                                                             
+  )
+
+validation_generator = training_datagen.flow_from_directory(                     
+	base_dir,                                                                      
+	target_size=(100,150),                                                         
+	class_mode='categorical',                                                      
+  shuffle=True,
+  subset='validation'                                                            
+  )
+                                                       
+
+
+model = tf.keras.models.Sequential([                                              
+                                                                                 
+    tf.keras.layers.Conv2D(16, (3,3), activation='relu', input_shape=(100, 150, 3)),
+    tf.keras.layers.MaxPooling2D(2, 2),
+    
+    tf.keras.layers.Conv2D(32, (3,3), activation='relu'),                       
+    tf.keras.layers.MaxPooling2D(2,2), 
+    
+    tf.keras.layers.Conv2D(32, (3,3), activation='relu'),                       
+    tf.keras.layers.MaxPooling2D(2,2),
+    
+    tf.keras.layers.Flatten(),                                                    
+    tf.keras.layers.Dropout(0.5),
+    
+    tf.keras.layers.Dense(128, activation='relu'),                                
+    
+    tf.keras.layers.Dense(512, activation='relu'),                              
+    
+    tf.keras.layers.Dense(3, activation='softmax')                               
+])
+
+model.summary()                                                                   
+
+model.compile(loss = 'categorical_crossentropy',                                  
+              optimizer='rmsprop',                                                
+              metrics=['accuracy'])
+
+
+history=model.fit(
+    train_generator,                                                             
+    steps_per_epoch=5,                                                            
+    epochs=10,                                                                    
+    validation_data=validation_generator,                                         
+    validation_steps=4,                                                           
+    verbose=2
+    )
+
+import matplotlib.pyplot as plt                                                   
+acc = history.history['accuracy']                                                 
+val_acc = history.history['val_accuracy']                                         
+                                        
+
+epochs = range(len(acc))                                                          
+
+                             #Plot nilai akurasi training                     
+plt.plot(epochs, val_acc, 'b', label='Akurasi Validasi')                          
+plt.title('Akurasi Validasi')                                        
+plt.legend(loc=0)                                                                 
+plt.figure()                                                                      
+plt.show()
+
+import numpy as np                                                                
+from google.colab import files                                                   
+from keras.preprocessing import image                                             
+
+uploaded = files.upload()                                                        
+
+for fn in uploaded.keys():
+
+  path = fn
+  img = image.load_img(path, target_size=(100, 150))                              
+  imgplot = plt.imshow(img)                                                       
+  x = image.img_to_array(img)
+  x = np.expand_dims(x, axis=0)
+
+  images = np.vstack([x])
+  classes = model.predict(images, batch_size=10)
+  print(fn)
+  if classes[0][0]==1:
+    print('Tangan Ini Menunjukkan bentuk KERTAS')                                 
+  elif classes[0][1]==1:
+    print('Tangan Ini Menunjukkan bentuk BATU')                                   
+  elif classes[0][2]==1:
+    print('Tangan Ini Menunjukkan bentuk GUNTING')                                
+  else:
+    print('Tidak Diketahui')                  
+
+import numpy as np                                                                
+from google.colab import files                                                    
+from keras.preprocessing import image                                            
+
+uploaded = files.upload()                                                         
+
+for fn in uploaded.keys():
+
+  path = fn
+  img = image.load_img(path, target_size=(100, 150))                              
+  imgplot = plt.imshow(img)                                                       
+  x = image.img_to_array(img)
+  x = np.expand_dims(x, axis=0)
+
+  images = np.vstack([x])
+  classes = model.predict(images, batch_size=10)
+  print(fn)
+  if classes[0][0]==1:
+    print('Tangan Ini Menunjukkan bentuk KERTAS')                                 
+  elif classes[0][1]==1:
+    print('Tangan Ini Menunjukkan bentuk BATU')                                   
+  elif classes[0][2]==1:
+    print('Tangan Ini Menunjukkan bentuk GUNTING')                                
+  else:
+    print('Tidak Diketahui')                  
+
+import numpy as np                                                               
+from google.colab import files                                                   
+from keras.preprocessing import image                                            
+
+uploaded = files.upload()                                                         
+
+for fn in uploaded.keys():
+
+  path = fn
+  img = image.load_img(path, target_size=(100, 150))                              
+  imgplot = plt.imshow(img)                                                       
+  x = image.img_to_array(img)
+  x = np.expand_dims(x, axis=0)
+
+  images = np.vstack([x])
+  classes = model.predict(images, batch_size=10)
+  print(fn)
+  if classes[0][0]==1:
+    print('Tangan Ini Menunjukkan bentuk KERTAS')                                 
+  elif classes[0][1]==1:
+    print('Tangan Ini Menunjukkan bentuk BATU')                                   
+  elif classes[0][2]==1:
+    print('Tangan Ini Menunjukkan bentuk GUNTING')                                
+  else:
+    print('Tidak Diketahui')                  
+
+
+
+Program Klasifikasi Gambar dengan Kriteria Henti(Callback)
+
+class myCallback(tf.keras.callbacks.Callback):
+  def on_epoch_end(self, epoch, logs={}):
+    if(logs.get('val_accuracy')>0.8):
+      print("\nPELATIHAN BERHENTI, AKURASI MODEL SUDAH LEBIH DARI 80%!")
+      self.model.stop_training = True
+
+callbacks = myCallback()
+
+model = tf.keras.models.Sequential([                                              
+                                                                                 
+    tf.keras.layers.Conv2D(16, (3,3), activation='relu', input_shape=(100, 150, 3)), 
+    tf.keras.layers.MaxPooling2D(2, 2),
+    
+    tf.keras.layers.Conv2D(32, (3,3), activation='relu'),                        
+    tf.keras.layers.MaxPooling2D(2,2), 
+    
+    tf.keras.layers.Conv2D(32, (3,3), activation='relu'),                         
+    tf.keras.layers.MaxPooling2D(2,2),
+    
+    tf.keras.layers.Flatten(),                                                    
+    tf.keras.layers.Dropout(0.5),
+    
+    tf.keras.layers.Dense(128, activation='relu'),                                
+    
+    tf.keras.layers.Dense(512, activation='relu'),                               
+    
+    tf.keras.layers.Dense(3, activation='softmax')                               
+])
+
+model.summary()                                                                 
+
+
+model.compile(loss = 'categorical_crossentropy',                                  
+              optimizer='rmsprop',                                                
+              metrics=['accuracy'])
+
+
+history=model.fit(
+    train_generator,                                                             
+    steps_per_epoch=5,                                                            
+    epochs=50,                                                                    
+    validation_data=validation_generator,                                         
+    validation_steps=4,                                                           
+    verbose=2,
+    callbacks=[callbacks]
+    )
+
+callback berhasil dan berhenti sesuai kriteria
+
+#datadiri
+#Nama: Bayu Kusuma Wardhana
+#Email: bayukusuma1884@gmail.com
+#Kota: Jakarta Selatan
